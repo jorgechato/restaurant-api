@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-api
+  labels:
+    app: restaurant-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: restaurant-api
+  template:
+    metadata:
+      labels:
+        app: restaurant-api
+    spec:
+      containers:
+      - name: restaurant-api
+        image: restaurant-api:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: '8080'
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health-ckeck
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health-ckeck
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 10
+      # TODO: needed for the DB connection
+      # imagePullSecrets:
+        # - name:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurant-api-service
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: restaurant-api
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: restaurant-api-ingress
+spec:
+  rules:
+  - http:
+    # uncomment this line if you have a cloud k8s with DNS rules
+    # host: restaurant-api.k8s
+      paths:
+      - path: /
+        backend:
+          serviceName: restaurant-api-service
+          servicePort: 8080
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: restaurant-api
+  namespace: default # change to according namespace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: restaurant-api
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 60
