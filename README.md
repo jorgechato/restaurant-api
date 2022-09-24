@@ -115,6 +115,8 @@ We are using `k6` as a client. Grafana k6 is an open-source load testing tool wh
 ```bash
 $ cd client
 $ npm install
+# You may need to create the /out folder
+$ mkdir out
 ```
 
 ### Run
