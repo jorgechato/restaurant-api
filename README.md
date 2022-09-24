@@ -1,5 +1,7 @@
 # Restaurant API
 
+This project follows a [hexagonal architecture](https://netflixtechblog.com/ready-for-changes-with-hexagonal-architecture-b315ec967749) to uncouple the responsibilities from the business logic and the frameworks/libraries.
+
 ## Deploy
 
 ```bash
@@ -108,15 +110,38 @@ Response
 
 We are using `k6` as a client. Grafana k6 is an open-source load testing tool where we can set multiple sync/async clients.
 
-## Install
+### Install
 
 ```bash
 $ cd client
 $ npm install
 ```
 
-## Run
+### Run
 
 ```bash
 $ npm start
 ```
+
+## FAQ
+
+**Why K8S and not AWS lambdas?**
+
+**P 1**: When using Serverless platforms the first invocation of a function takes
+some time since the code needs to be initialized. In this case we will need a fast
+response since this service will be integrated with a stack of MS.
+
+**P 2**: Kubernetes might provide better scalability features than some Serverless
+platforms, since Kubernetes is more mature and provides even HA (high availability)
+between different zones which not all Serverless platforms provide yet.
+
+**P 3**: it might be easier to use Kubernetes for more complex applications because
+the platform is more mature. And since we are planning to use a database to
+store the outcome of the logic, that make sense.
+
+**P 4**: Serverless doesn’t automatically mean lower costs, like when your
+applications need to run 24/7. There can also be some hidden costs like extra
+costs for API management or the costs for the function invocations for tests.
+
+**P 5**: The monitoring capabilities of Kubernetes applications are much more
+mature.
