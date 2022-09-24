@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "browserify": "^17.0.0",
     "k6": "^0.0.0",
     "uuid": "^3.4.0"
   }
